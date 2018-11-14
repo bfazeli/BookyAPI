@@ -20,6 +20,25 @@ service: BookyAPI # NOTE: update this with your service name
 provider:
   name: aws
   runtime: nodejs8.10
+  environment:
+    IS_OFFLINE: false
+    # USER_TABLE: ${self:service}-${opt:stage, self:provider.stage}-User
+    # EVENT_TABLE: ${self:service}-${opt:stage, self:provider.stage}-Event
+    # ROOM_TABLE: ${self:service}-${opt:stage, self:provider.stage}-Room
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        # - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.USER_TABLE}"
+        # - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.EVENT_TABLE}"
+        # - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.ROOM_TABLE}"
+
 
 # you can overwrite defaults here
 #  stage: dev
@@ -42,21 +61,46 @@ provider:
 #            - "/*"
 
 # you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+environment:
+
+plugins:
+  - serverless-mocha-plugin
+  - serverless-webpack
+  - serverless-dynamodb-local
+  - serverless-offline
+
+
 
 # you can add packaging information here
-#package:
-#  include:
-#    - include-me.js
-#    - include-me-dir/**
-#  exclude:
-#    - exclude-me.js
-#    - exclude-me-dir/**
+package:
+  individually: true
+  exclude:
+    - node_modules/**
+  include:
+    - src/** 
 
 functions:
   hello:
     handler: handler.hello
+    events:
+      - http:
+          path: handler
+          method: get
+          cors: true
+
+custom:
+  webpack:
+    webpackConfig: 'webpack.config.js'   # Name of webpack configuration file
+    includeModules: false   # Node modules configuration for packaging
+    packager: 'npm'   # Packager that will be used to package your external modules
+    packExternalModulesMaxBuffer: 200 * 1024   # Size of stdio buffers for spawned child processes
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+    migration:
+      dir: offline/migrations
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
