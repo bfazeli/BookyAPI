@@ -20,9 +20,11 @@ service: BookyAPI # NOTE: update this with your service name
 provider:
   name: aws
   runtime: nodejs8.10
+  timeout: 10
+  region: us-west-2
   environment:
     IS_OFFLINE: false
-    # USER_TABLE: ${self:service}-${opt:stage, self:provider.stage}-User
+    USER_TABLE: ${self:service}-${opt:stage, self:provider.stage}-User
     # EVENT_TABLE: ${self:service}-${opt:stage, self:provider.stage}-Event
     # ROOM_TABLE: ${self:service}-${opt:stage, self:provider.stage}-Room
   iamRoleStatements:
@@ -35,7 +37,7 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource:
-        # - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.USER_TABLE}"
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.USER_TABLE}"
         # - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.EVENT_TABLE}"
         # - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.ROOM_TABLE}"
 
@@ -87,6 +89,27 @@ functions:
           path: handler
           method: get
           cors: true
+  user-create:
+    handler: src/functions/user.create
+    events:
+      - http:
+          path: user/create
+          method: post
+          cors: true
+  user-list:
+    handler: src/functions/user.getAll
+    events:
+      - http:
+          path: user/list
+          method: get
+          cors: true
+  user-get:
+    handler: src/functions/user.getOne
+    events:
+      - http:
+          path: user/get
+          method: get
+          cors: true  
 
 custom:
   webpack:
@@ -96,11 +119,51 @@ custom:
     packExternalModulesMaxBuffer: 200 * 1024   # Size of stdio buffers for spawned child processes
   dynamodb:
     start:
-      port: 8000
+      port: 3000
       inMemory: true
       migrate: true
     migration:
       dir: offline/migrations
+
+resources:
+  Resources:
+    # This response is needed for custom authorizer failures cors support ¯\_(ツ)_/¯
+    GatewayResponse:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: EXPIRED_TOKEN
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+        StatusCode: '401'
+    AuthFailureGatewayResponse:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: UNAUTHORIZED
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+        StatusCode: '401'
+    UserTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.USER_TABLE}
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
