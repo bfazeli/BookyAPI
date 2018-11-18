@@ -119,7 +119,7 @@ custom:
     packExternalModulesMaxBuffer: 200 * 1024   # Size of stdio buffers for spawned child processes
   dynamodb:
     start:
-      port: 3000
+      port: 8000
       inMemory: true
       migrate: true
     migration:
