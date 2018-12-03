@@ -121,6 +121,13 @@ functions:
           path: book/list
           method: get
           cors: true
+  book-getByTheme:
+    handler: src/functions/book.getBooksByTheme
+    events:
+      - http:
+          path: book/theme
+          method: get
+          cors: true
   book-get:
     handler: src/functions/book.getOne
     events:

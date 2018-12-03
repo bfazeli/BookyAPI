@@ -1,8 +1,8 @@
 'use strict';
-const UserRepository = require('../repository/BookRepository')
+const BookRepository = require('../repository/BookRepository')
 
 module.exports.getAll = (event, context, callback) => {
-  UserRepository.getAll(event)
+  BookRepository.getAll(event)
     .then(value => {
       const response = {
         statusCode: 200,
@@ -17,9 +17,44 @@ module.exports.getAll = (event, context, callback) => {
     })
 }
 
+module.exports.getBooksByTheme = (event, context, callback) => {
+    console.log(event);
+
+    const data = event.queryStringParameters
+    var list = null
+
+    BookRepository.getSynonyms(data)
+      .then(value => {return value.json()})
+      .then(result => {
+        console.log(result);
+
+        const response = {
+          statusCode: 200,
+          body: JSON.stringify(result)
+        }
+        console.log(response);
+        callback(null, response)
+      })
+      .then( list => {
+          
+      })
+      .catch( error => {
+        console.log(error);
+        callback(null, error)
+      })
+
+      if (list) {
+        BookRepository.getBooksByTheme()
+        .then(
+
+        )
+      }
+      
+  }
+
 module.exports.getOne = (event, context, callback) => {
   const {userId} = JSON.parse(event.body)
-  UserRepository.getOne(userId)
+  BookRepository.getOne(userId)
   .then(value => {
     const response = {
       statusCode: 200,
@@ -38,7 +73,7 @@ module.exports.delete = (event, context, callback) => {
   console.log(event.body);
   
   const {userId} = JSON.parse(event.body)
-  UserRepository.delete(userId)
+  BookRepository.delete(userId)
   .then(value => {
     const response = {
       statusCode: 204,
@@ -54,8 +89,8 @@ module.exports.delete = (event, context, callback) => {
 }
 
 module.exports.create = (event, context, callback) => {
-  const user = JSON.parse(event.body)
-  UserRepository.create(user)
+  const book = JSON.parse(event.body)
+  BookRepository.create(book)
   .then(value => {
     
     const response = {

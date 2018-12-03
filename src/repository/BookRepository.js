@@ -9,6 +9,35 @@ module.exports.getAll = (params) => {
     return db.scan(data).promise()
 }
 
+module.exports.getBooksByTheme = (data) => {
+    console.log("\n\n" + data.word + "\n\n");
+    
+    
+        // .then ( data => {
+        //     return data.json()
+        // })
+        // .catch ( 
+        //     err => {return err}
+        // )
+
+    // const data = {
+    //     TableName: process.env.BOOK_TABLE,
+    //     KeyConditionExpression: "condition = :c and contains(description, :w)"
+    // }
+}
+
+module.exports.getSynonyms = (data) => {
+    const url = `https://od-api.oxforddictionaries.com/api/v1/entries/en/${data.word}/synonyms`
+    const otherParams = {
+        headers: {
+            "app_id": "87370f42",
+            "app_key": "69daf2ab9761c11273dd3bb264babec9"
+        }
+    }
+    
+    return fetch(url, otherParams)
+}
+
 module.exports.getOne = (id) => {
     const data = {
         TableName: process.env.BOOK_TABLE,
