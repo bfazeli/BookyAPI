@@ -36,15 +36,17 @@ module.exports.delete = (id) => {
 module.exports.create = (user) => {
     const data = {
         TableName: process.env.USER_TABLE,
-        Item: {
-            id: uuid.v1(),
-            name: user.name,
-            phone: user.phone,
-            email: user.email
-        }
+        Key: {
+            id: uuid.v1()
+        },
+        AttributeUpdates: {
+            name: {Action: "PUT", Value: user.name},
+            phone: {Action: "PUT", Value: user.phone},
+            email: {Action: "PUT", Value: user.email}
+        },
+        ReturnValues: 'ALL_NEW'
     }
-    console.log(data);
-    console.log(db);
-    return db.put(data).promise()
+    return db.update(data).promise()
 }
+
 

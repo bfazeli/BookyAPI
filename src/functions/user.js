@@ -57,13 +57,11 @@ module.exports.create = (event, context, callback) => {
   const user = JSON.parse(event.body)
   UserRepository.create(user)
   .then(value => {
-    console.log("\n" + value + "\n");
-    
     
     const response = {
       isBase64Encoded: false,
       statusCode: 201,
-      body: JSON.stringify(value.Items)
+      body: JSON.stringify(value.Attributes)
     }
   
     console.log(response);
