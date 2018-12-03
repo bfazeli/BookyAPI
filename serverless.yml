@@ -25,8 +25,7 @@ provider:
   environment:
     IS_OFFLINE: false
     USER_TABLE: ${self:service}-${opt:stage, self:provider.stage}-User
-    # EVENT_TABLE: ${self:service}-${opt:stage, self:provider.stage}-Event
-    # ROOM_TABLE: ${self:service}-${opt:stage, self:provider.stage}-Room
+    BOOK_TABLE: ${self:service}-${opt:stage, self:provider.stage}-Book
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -38,9 +37,7 @@ provider:
         - dynamodb:DeleteItem
       Resource:
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.USER_TABLE}"
-        # - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.EVENT_TABLE}"
-        # - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.ROOM_TABLE}"
-
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.BOOK_TABLE}"
 
 # you can overwrite defaults here
 #  stage: dev
@@ -109,6 +106,27 @@ functions:
       - http:
           path: user/get
           method: get
+          cors: true
+  book-create:
+    handler: src/functions/book.create
+    events:
+      - http:
+          path: book/create
+          method: post
+          cors: true
+  book-list:
+    handler: src/functions/book.getAll
+    events:
+      - http:
+          path: book/list
+          method: get
+          cors: true
+  book-get:
+    handler: src/functions/book.getOne
+    events:
+      - http:
+          path: book/get
+          method: get
           cors: true  
 
 custom:
@@ -164,6 +182,22 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:provider.environment.USER_TABLE}
+    BookTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.BOOK_TABLE}
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

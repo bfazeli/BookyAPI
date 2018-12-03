@@ -35,7 +35,7 @@ module.exports.delete = (id) => {
 
 module.exports.create = (user) => {
     const data = {
-        TableName: process.env.USER_TABLE,
+        TableName: process.env.USER_TABLzE,
         Key: {
             id: uuid.v1()
         },
