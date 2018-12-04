@@ -28,9 +28,21 @@ module.exports.getBooksByTheme = (event, context, callback) => {
       .then(result => {
         console.log(result);
 
+        let arrOfSenses = result.results[0].lexicalEntries[0].entries[0].senses
+        let listOfSynonyms = []
+
+        arrOfSenses.forEach(sense => {
+            sense.synonyms.forEach(synObj => {
+                listOfSynonyms.push(synObj.text)
+            })
+        });
+
+        console.log(listOfSynonyms);
+        
+
         const response = {
           statusCode: 200,
-          body: JSON.stringify(result)
+          body: JSON.stringify(listOfSynonyms)
         }
         console.log(response);
         callback(null, response)
@@ -53,8 +65,9 @@ module.exports.getBooksByTheme = (event, context, callback) => {
   }
 
 module.exports.getOne = (event, context, callback) => {
-  const {userId} = JSON.parse(event.body)
-  BookRepository.getOne(userId)
+  // const {userId} = JSON.parse(event.body)
+
+  BookRepository.getOne(event.pathParameters.id)
   .then(value => {
     const response = {
       statusCode: 200,

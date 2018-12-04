@@ -132,7 +132,7 @@ functions:
     handler: src/functions/book.getOne
     events:
       - http:
-          path: book/get
+          path: book/{id}
           method: get
           cors: true  
 
