@@ -20,10 +20,22 @@ module.exports.getBooksByTheme = (data) => {
         //     err => {return err}
         // )
 
-    // const data = {
+    // const data = {69daf2ab9761c11273dd3bb264babec9
     //     TableName: process.env.BOOK_TABLE,
     //     KeyConditionExpression: "condition = :c and contains(description, :w)"
     // }
+}
+
+module.exports.getBooksByTitle = (title) => {
+    const data = {
+        TableName: process.env.BOOK_TABLE,
+        FilterExpression: "contains(title, :t)",
+        ExpressionAttributeValues: {
+            ':t' : `${title}`
+        }
+    }
+
+    return db.scan(data).promise()
 }
 
 module.exports.getSynonyms = (data) => {

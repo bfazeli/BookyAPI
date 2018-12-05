@@ -104,8 +104,8 @@ functions:
     handler: src/functions/user.getOne
     events:
       - http:
-          path: user/get
-          method: get
+          path: user-get
+          method: post
           cors: true
   book-create:
     handler: src/functions/book.create
@@ -121,6 +121,13 @@ functions:
           path: book/list
           method: get
           cors: true
+  book-title:
+    handler: src/functions/book.getBooksByTitle
+    events:
+      - http:
+          path: book-title
+          method: post
+          cors: true
   book-getByTheme:
     handler: src/functions/book.getBooksByTheme
     events:
@@ -132,8 +139,8 @@ functions:
     handler: src/functions/book.getOne
     events:
       - http:
-          path: book/{id}
-          method: get
+          path: book-get
+          method: post
           cors: true  
 
 custom:

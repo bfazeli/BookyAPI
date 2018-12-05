@@ -17,6 +17,26 @@ module.exports.getAll = (event, context, callback) => {
     })
 }
 
+module.exports.getBooksByTitle = (event, context, callback) => {
+    const {title} = JSON.parse(event.body)
+    
+    BookRepository.getBooksByTitle(title)
+    .then(value => {
+        console.log(value);
+        
+        const response = {
+            statusCode: 200,
+            body: JSON.stringify({"Books" : value.Items})
+        }
+        console.log(response);
+        callback(null, response)
+    })
+    .catch(error => {
+        console.log(error);
+        callback(null, error)
+    })
+}
+
 module.exports.getBooksByTheme = (event, context, callback) => {
     console.log(event);
 
@@ -65,9 +85,9 @@ module.exports.getBooksByTheme = (event, context, callback) => {
   }
 
 module.exports.getOne = (event, context, callback) => {
-  // const {userId} = JSON.parse(event.body)
+    const {bookId} = JSON.parse(event.body)
 
-  BookRepository.getOne(event.pathParameters.id)
+  BookRepository.getOne(bookId)
   .then(value => {
     const response = {
       statusCode: 200,
