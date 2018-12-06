@@ -90,14 +90,14 @@ functions:
     handler: src/functions/user.create
     events:
       - http:
-          path: user/create
+          path: user-create
           method: post
           cors: true
   user-list:
     handler: src/functions/user.getAll
     events:
       - http:
-          path: user/list
+          path: user-list
           method: get
           cors: true
   user-get:
@@ -111,14 +111,14 @@ functions:
     handler: src/functions/book.create
     events:
       - http:
-          path: book/create
+          path: book-create
           method: post
           cors: true
   book-list:
     handler: src/functions/book.getAll
     events:
       - http:
-          path: book/list
+          path: book-list
           method: get
           cors: true
   book-title:
@@ -132,7 +132,7 @@ functions:
     handler: src/functions/book.getBooksByTheme
     events:
       - http:
-          path: book/theme
+          path: book-theme
           method: get
           cors: true
   book-get:

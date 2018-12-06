@@ -37,6 +37,26 @@ module.exports.getBooksByTitle = (event, context, callback) => {
     })
 }
 
+module.exports.getBooksByAuthor = (event, context, callback) => {
+    const {author} = JSON.parse(event.body)
+
+    BookRepository.getBooksByAuthor(author)
+    .then(value => {
+        console.log(value);
+        
+        const response = {
+            statusCode: 200,
+            body: JSON.stringify({"Books": value.Items})
+        }
+        console.log(response);
+        callback(null, error)  
+    })
+    .catch(error => {
+        console.log(error);
+        callback(null, error)
+    })
+}
+
 module.exports.getBooksByTheme = (event, context, callback) => {
     console.log(event);
 
@@ -122,6 +142,8 @@ module.exports.delete = (event, context, callback) => {
 }
 
 module.exports.create = (event, context, callback) => {
+    console.log(event.body);
+    
   const book = JSON.parse(event.body)
   BookRepository.create(book)
   .then(value => {

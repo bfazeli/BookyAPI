@@ -38,6 +38,18 @@ module.exports.getBooksByTitle = (title) => {
     return db.scan(data).promise()
 }
 
+module.exports.getBooksByAuthor = (author) => {
+    const data = {
+        TableName: process.env.BOOK_TABLE,
+        FilterExpression: "contains(author, :a)",
+        ExpressionAttributeValues: {
+            ":a" : `${author}`
+        }
+    }
+
+    return db.scan(data).promise()
+}
+
 module.exports.getSynonyms = (data) => {
     const url = `https://od-api.oxforddictionaries.com/api/v1/entries/en/${data.word}/synonyms`
     const otherParams = {
