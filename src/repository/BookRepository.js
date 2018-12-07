@@ -9,21 +9,27 @@ module.exports.getAll = (params) => {
     return db.scan(data).promise()
 }
 
-module.exports.getBooksByTheme = (data) => {
-    console.log("\n\n" + data.word + "\n\n");
+module.exports.getBooksByTheme = (text) => {
+    console.log("\n\n" + text + "\n\n");
     
-    
-        // .then ( data => {
-        //     return data.json()
-        // })
-        // .catch ( 
-        //     err => {return err}
-        // )
 
-    // const data = {69daf2ab9761c11273dd3bb264babec9
-    //     TableName: process.env.BOOK_TABLE,
-    //     KeyConditionExpression: "condition = :c and contains(description, :w)"
-    // }
+    
+    // Figure out a way to return from inside the then block
+    console.log(arrOfPromises.length);
+    
+}
+
+module.exports.getBooksByKeyword = (keyword) => {
+    const data = {
+        TableName: process.env.BOOK_TABLE,
+        FilterExpression: "contains(title, :lowerK) OR contains(description, :lowerK) OR contains(title, :upperK) OR contains(description, :upperK)",
+        ExpressionAttributeValues: {
+            ':upperK' : `${keyword}`,
+            ':lowerK' : `${keyword}`
+        }
+    }
+
+    return db.scan(data).promise()
 }
 
 module.exports.getBooksByTitle = (title) => {
@@ -50,18 +56,36 @@ module.exports.getBooksByAuthor = (author) => {
     return db.scan(data).promise()
 }
 
-module.exports.getSynonyms = (data) => {
-    const url = `https://od-api.oxforddictionaries.com/api/v1/entries/en/${data.word}/synonyms`
+module.exports.getSynonyms = (text) => {
+    const url = `https://od-api.oxforddictionaries.com/api/v1/entries/en/${text}/synonyms`
     const otherParams = {
         
         // Insert your app id and app key below
         headers: {
-            "app_id": "",
-            "app_key": ""
+            "app_id": "87370f42",
+            "app_key": "69daf2ab9761c11273dd3bb264babec9"
         }
     }
     
     return fetch(url, otherParams)
+    // .then(result => {
+    //     let arrOfSenses = result.results[0].lexicalEntries[0].entries[0].senses
+    //     let listOfSynonyms = []
+
+    //     arrOfSenses.forEach(sense => {
+    //         sense.synonyms.forEach(synObj => {
+    //             listOfSynonyms.push(synObj.text)
+    //         })
+    //     });
+
+    //     console.log(listOfSynonyms);
+    //     listOfSynonyms.push(data.word)
+
+    //     return listOfSynonyms
+    // })
+    // .catch(error => {
+    //     console.log(error);
+    // })
 }
 
 module.exports.getOne = (id) => {
@@ -93,12 +117,12 @@ module.exports.create = (book) => {
             id: uuid.v1()
         },
         AttributeUpdates: {
-            title: {Action: "PUT", Value: book.title},
-            author: {Action: "PUT", Value: book.author},
-            genre: {Action: "PUT", Value: book.genre},
-            condition: {Action: "PUT", Value: book.condition},
+            title: {Action: "PUT", Value: book.title.toLowerCase()},
+            author: {Action: "PUT", Value: book.author.toLowerCase()},
+            genre: {Action: "PUT", Value: book.genre.toLowerCase()},
+            condition: {Action: "PUT", Value: book.condition.toLowerCase()},
             isbn: {Action: "PUT", Value: book.isbn},
-            description: {Action: "PUT", Value: book.description},
+            description: {Action: "PUT", Value: book.description.toLowerCase()},
             purchasers: {Action: "PUT", Value: {}},
             sellers: {Action: "PUT", Value: {}}
         },

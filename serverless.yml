@@ -135,6 +135,13 @@ functions:
           path: book-theme
           method: post
           cors: true
+  book-getByKeyword:
+    handler: src/functions/book.getBooksByKeyword
+    events:
+      - http:
+          path: book-keyword
+          method: post
+          cors: true
   book-get:
     handler: src/functions/book.getOne
     events:

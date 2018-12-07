@@ -49,7 +49,7 @@ module.exports.getBooksByAuthor = (event, context, callback) => {
             body: JSON.stringify({"Books": value.Items})
         }
         console.log(response);
-        callback(null, error)  
+        callback(null, response)  
     })
     .catch(error => {
         console.log(error);
@@ -58,16 +58,15 @@ module.exports.getBooksByAuthor = (event, context, callback) => {
 }
 
 module.exports.getBooksByTheme = (event, context, callback) => {
-    console.log(event);
+    const {text} = JSON.parse(event.body)
 
-    const data = event.queryStringParameters
-    var list = null
-
-    BookRepository.getSynonyms(data)
-      .then(value => {return value.json()})
-      .then(result => {
-        console.log(result);
-
+    console.log(text);
+    
+    BookRepository.getSynonyms(text)
+    .then(value => {
+        return value.json()
+    })
+    .then(result => {
         let arrOfSenses = result.results[0].lexicalEntries[0].entries[0].senses
         let listOfSynonyms = []
 
@@ -76,33 +75,86 @@ module.exports.getBooksByTheme = (event, context, callback) => {
                 listOfSynonyms.push(synObj.text)
             })
         });
+        listOfSynonyms.unshift(text)
 
-        console.log(listOfSynonyms);
+        return listOfSynonyms
+    })
+    .then( synonyms => {
+        console.log(synonyms);
+        const arrOfPromises = []
+        synonyms.forEach(synonym => {
+            arrOfPromises.push(BookRepository.getBooksByKeyword(synonym))
+        })
         
+        Promise.all(arrOfPromises).then( values => {
+          console.log(values);
 
-        const response = {
-          statusCode: 200,
-          body: JSON.stringify(listOfSynonyms)
-        }
-        console.log(response);
-        callback(null, response)
-      })
-      .then( list => {
           
-      })
-      .catch( error => {
-        console.log(error);
+
+          const set = new Set()
+          const result = []
+          values.forEach(obj => {
+            obj.Items.forEach(book => {
+              if (!set.has(book.isbn)) {
+                result.push(book)
+              }
+              else {
+                set.add(book.isbn)
+              }
+            })
+          })
+
+
+          const response = {
+            statusCode: 200,
+            body: JSON.stringify(
+              {
+                "Synonyms": synonyms,
+                "Books": result
+              })
+          }
+
+          callback(null, response)
+        })
+    })
+    .catch( error => {
+        console.log(error)
         callback(null, error)
-      })
+    })
 
-      if (list) {
-        BookRepository.getBooksByTheme()
-        .then(
+    // BookRepository.getBooksByTheme(text)
+    // .then(result => {
+    //   console.log(result);
+    //   const response = {
+    //     statusCode: 200,
+    //     body: JSON.stringify({"Books": result.Items})
+    //   }
 
-        )
-      }
-      
+    //   console.log(response);
+    //   callback(null, response)
+    // })
+    // .catch(error => {
+    //   console.log(error);
+    // })
   }
+
+module.exports.getBooksByKeyword = (event, context, callback) => {
+  const {text} = JSON.parse(event.body)
+
+  BookRepository.getBooksByKeyword(text)
+  .then(value => {
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify({"Books" : value.Items})
+    }
+    console.log(response);
+    callback(null, response)
+  })
+  .catch(error => {
+    console.log(error);
+    callback(null, error)
+  })
+}
 
 module.exports.getOne = (event, context, callback) => {
     const {bookId} = JSON.parse(event.body)
