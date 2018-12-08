@@ -86,15 +86,16 @@ module.exports.getBooksByTheme = (event, context, callback) => {
         })
         
         Promise.all(arrOfPromises).then( values => {
-          const set = new Set()
+          // const set = [new Set()]
+          const set = []
           const result = []
+
+          // Gets rid of duplicates
           values.forEach(obj => {
             obj.Items.forEach(book => {
-              if (!set.has(book.isbn)) {
+              if (!(set.indexOf(book.isbn) > -1)) {
+                set.push(book.isbn)
                 result.push(book)
-              }
-              else {
-                set.add(book.isbn)
               }
             })
           })
