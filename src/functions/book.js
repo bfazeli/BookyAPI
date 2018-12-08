@@ -26,7 +26,7 @@ module.exports.getBooksByTitle = (event, context, callback) => {
         
         const response = {
             statusCode: 200,
-            body: JSON.stringify({"Books" : value.Items})
+            body: JSON.stringify({"books" : value.Items})
         }
         console.log(response);
         callback(null, response)
@@ -38,15 +38,15 @@ module.exports.getBooksByTitle = (event, context, callback) => {
 }
 
 module.exports.getBooksByAuthor = (event, context, callback) => {
-    const {author} = JSON.parse(event.body)
+    const {text} = JSON.parse(event.body)
 
-    BookRepository.getBooksByAuthor(author)
+    BookRepository.getBooksByAuthor(text)
     .then(value => {
         console.log(value);
         
         const response = {
             statusCode: 200,
-            body: JSON.stringify({"Books": value.Items})
+            body: JSON.stringify({"books": value.Items})
         }
         console.log(response);
         callback(null, response)  
@@ -80,17 +80,12 @@ module.exports.getBooksByTheme = (event, context, callback) => {
         return listOfSynonyms
     })
     .then( synonyms => {
-        console.log(synonyms);
         const arrOfPromises = []
         synonyms.forEach(synonym => {
             arrOfPromises.push(BookRepository.getBooksByKeyword(synonym))
         })
         
         Promise.all(arrOfPromises).then( values => {
-          console.log(values);
-
-          
-
           const set = new Set()
           const result = []
           values.forEach(obj => {
@@ -104,16 +99,15 @@ module.exports.getBooksByTheme = (event, context, callback) => {
             })
           })
 
-
           const response = {
             statusCode: 200,
             body: JSON.stringify(
               {
                 "Synonyms": synonyms,
-                "Books": result
+                "books": result
               })
           }
-
+          console.log(response)
           callback(null, response)
         })
     })
@@ -121,21 +115,6 @@ module.exports.getBooksByTheme = (event, context, callback) => {
         console.log(error)
         callback(null, error)
     })
-
-    // BookRepository.getBooksByTheme(text)
-    // .then(result => {
-    //   console.log(result);
-    //   const response = {
-    //     statusCode: 200,
-    //     body: JSON.stringify({"Books": result.Items})
-    //   }
-
-    //   console.log(response);
-    //   callback(null, response)
-    // })
-    // .catch(error => {
-    //   console.log(error);
-    // })
   }
 
 module.exports.getBooksByKeyword = (event, context, callback) => {
@@ -145,7 +124,7 @@ module.exports.getBooksByKeyword = (event, context, callback) => {
   .then(value => {
     const response = {
       statusCode: 200,
-      body: JSON.stringify({"Books" : value.Items})
+      body: JSON.stringify({"books" : value.Items})
     }
     console.log(response);
     callback(null, response)
@@ -157,9 +136,9 @@ module.exports.getBooksByKeyword = (event, context, callback) => {
 }
 
 module.exports.getOne = (event, context, callback) => {
-    const {bookId} = JSON.parse(event.body)
+    const {id} = JSON.parse(event.body)
 
-  BookRepository.getOne(bookId)
+  BookRepository.getOne(id)
   .then(value => {
     const response = {
       statusCode: 200,
@@ -175,15 +154,35 @@ module.exports.getOne = (event, context, callback) => {
 }
 
 module.exports.delete = (event, context, callback) => {
-  console.log(event.body);
-  
-  const {userId} = JSON.parse(event.body)
-  BookRepository.delete(userId)
+  const {id} = JSON.parse(event.body)
+  BookRepository.delete(id)
   .then(value => {
     const response = {
       statusCode: 204,
       body: JSON.stringify(value)
     }
+    console.log(response);
+    callback(null, response)
+  })
+  .catch( error => {
+    console.log(error);
+    callback(null, error)
+  })
+}
+
+module.exports.update = (event, context, callback) => {
+  console.log(event.body);
+  
+  const book = JSON.parse(event.body)
+  BookRepository.update(book)
+  .then(value => {
+    
+    const response = {
+      isBase64Encoded: false,
+      statusCode: 201,
+      body: JSON.stringify(value.Attributes)
+    }
+
     console.log(response);
     callback(null, response)
   })

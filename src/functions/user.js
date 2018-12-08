@@ -18,8 +18,8 @@ module.exports.getAll = (event, context, callback) => {
 }
 
 module.exports.getOne = (event, context, callback) => {
-  const {userId} = JSON.parse(event.body)
-  UserRepository.getOne(userId)
+  const {id} = JSON.parse(event.body)
+  UserRepository.getOne(id)
   .then(value => {
     const response = {
       statusCode: 200,
@@ -37,8 +37,8 @@ module.exports.getOne = (event, context, callback) => {
 module.exports.delete = (event, context, callback) => {
   console.log(event.body);
   
-  const {userId} = JSON.parse(event.body)
-  UserRepository.delete(userId)
+  const {id} = JSON.parse(event.body)
+  UserRepository.delete(id)
   .then(value => {
     const response = {
       statusCode: 204,

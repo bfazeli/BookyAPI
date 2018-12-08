@@ -17,8 +17,6 @@ module.exports.getOne = (id) => {
         }
     }
     
-    
-
     return db.get(data).promise()
 }
 
@@ -35,14 +33,20 @@ module.exports.delete = (id) => {
 
 module.exports.create = (user) => {
     const data = {
-        TableName: process.env.USER_TABLzE,
+        TableName: process.env.USER_TABLE,
         Key: {
             id: uuid.v1()
         },
         AttributeUpdates: {
-            name: {Action: "PUT", Value: user.name},
+            firstName: {Action: "PUT", Value: user.firstName.toLowerCase()},
+            lastName: {Action: "PUT", Value: user.lastName.toLowerCase()},
+            usermame: {Action: "PUT", Value: user.username.toLowerCase()},
+            password: {Action: "PUT", Value: user.password},
             phone: {Action: "PUT", Value: user.phone},
-            email: {Action: "PUT", Value: user.email}
+            email: {Action: "PUT", Value: user.email},
+            address: {Action: "PUT", Value: user.address},
+            soldBooKs: {Action: "PUT", Value: {}},
+            purchasedBooks: {Action: "PUT", Value: {}}
         },
         ReturnValues: 'ALL_NEW'
     }

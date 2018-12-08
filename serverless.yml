@@ -135,6 +135,20 @@ functions:
           path: book-theme
           method: post
           cors: true
+  book-getByAuthor:
+    handler: src/functions/book.getBooksByAuthor
+    events:
+      - http:
+          path: book-author
+          method: post
+          cors: true
+  book-update:
+    handler: src/functions/book.update
+    events:
+      - http:
+          path: book-update
+          method: post
+          cors: true
   book-getByKeyword:
     handler: src/functions/book.getBooksByKeyword
     events:

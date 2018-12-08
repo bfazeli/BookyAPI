@@ -68,24 +68,6 @@ module.exports.getSynonyms = (text) => {
     }
     
     return fetch(url, otherParams)
-    // .then(result => {
-    //     let arrOfSenses = result.results[0].lexicalEntries[0].entries[0].senses
-    //     let listOfSynonyms = []
-
-    //     arrOfSenses.forEach(sense => {
-    //         sense.synonyms.forEach(synObj => {
-    //             listOfSynonyms.push(synObj.text)
-    //         })
-    //     });
-
-    //     console.log(listOfSynonyms);
-    //     listOfSynonyms.push(data.word)
-
-    //     return listOfSynonyms
-    // })
-    // .catch(error => {
-    //     console.log(error);
-    // })
 }
 
 module.exports.getOne = (id) => {
@@ -122,9 +104,32 @@ module.exports.create = (book) => {
             genre: {Action: "PUT", Value: book.genre.toLowerCase()},
             condition: {Action: "PUT", Value: book.condition.toLowerCase()},
             isbn: {Action: "PUT", Value: book.isbn},
+            price: {Action: "PUT", Value: book.price},
             description: {Action: "PUT", Value: book.description.toLowerCase()},
             purchasers: {Action: "PUT", Value: {}},
-            sellers: {Action: "PUT", Value: {}}
+            sellers: {Action: "PUT", Value: book.sellers}
+        },
+        ReturnValues: 'ALL_NEW'
+    }
+    return db.update(data).promise()
+}
+
+module.exports.update = (book) => {
+    const data = {
+        TableName: process.env.BOOK_TABLE,
+        Key: {
+            id: book.id
+        },
+        AttributeUpdates: {
+            title: {Action: "PUT", Value: book.title.toLowerCase()},
+            author: {Action: "PUT", Value: book.author.toLowerCase()},
+            genre: {Action: "PUT", Value: book.genre.toLowerCase()},
+            condition: {Action: "PUT", Value: book.condition.toLowerCase()},
+            isbn: {Action: "PUT", Value: book.isbn},
+            price: {Action: "PUT", Value: book.price},
+            description: {Action: "PUT", Value: book.description.toLowerCase()},
+            purchasers: {Action: "PUT", Value: {}},
+            sellers: {Action: "PUT", Value: book.sellers}
         },
         ReturnValues: 'ALL_NEW'
     }
