@@ -62,8 +62,8 @@ module.exports.getSynonyms = (text) => {
         
         // Insert your app id and app key below
         headers: {
-            "app_id": "87370f42",
-            "app_key": "69daf2ab9761c11273dd3bb264babec9"
+            "app_id": "",
+            "app_key": ""
         }
     }
     
